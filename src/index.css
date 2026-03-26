@@ -1,0 +1,701 @@
+/* ============================================================
+   Richard Financial Terminal — Global Styles
+   Bloomberg-style dark terminal
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap');
+
+/* ── Reset ─────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Design Tokens ──────────────────────────────────────────── */
+:root {
+  --bg:          #000000;
+  --bg1:         #050505;
+  --bg2:         #0a0a0a;
+  --bg3:         #111111;
+  --bg4:         #161616;
+  --border:      #1c1c1c;
+  --border2:     #242424;
+
+  --green:       #00FF41;
+  --green-dim:   #00cc33;
+  --red:         #FF3131;
+  --red-dim:     #cc2525;
+  --amber:       #FFB300;
+  --blue:        #00BFFF;
+  --orange:      #FF8C00;
+  --purple:      #CC44FF;
+  --white:       #E8E8E8;
+  --gray:        #555555;
+  --gray2:       #888888;
+
+  --font:        'JetBrains Mono', 'Courier New', Courier, monospace;
+  --hdr-h:       42px;
+  --sidebar-w:   170px;
+}
+
+/* ── Base ───────────────────────────────────────────────────── */
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+body {
+  background: var(--bg);
+  color: var(--white);
+  font-family: var(--font);
+  font-size: 12px;
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
+}
+
+button { font-family: var(--font); cursor: pointer; border: none; background: none; }
+table  { border-collapse: collapse; width: 100%; }
+
+.pos     { color: var(--green); }
+.neg     { color: var(--red); }
+.neutral { color: var(--gray2); }
+.dim     { color: var(--gray2); }
+.small   { font-size: 10px; }
+.right   { text-align: right; }
+
+/* ── Terminal Shell ─────────────────────────────────────────── */
+.terminal {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+  background: var(--bg);
+  overflow: hidden;
+}
+
+/* ── Header ─────────────────────────────────────────────────── */
+.terminal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--hdr-h);
+  min-height: var(--hdr-h);
+  background: var(--bg1);
+  border-bottom: 1px solid var(--border2);
+  padding: 0 16px;
+  gap: 16px;
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.brand-name {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  color: var(--green);
+  text-shadow: 0 0 12px rgba(0, 255, 65, 0.4);
+}
+
+.brand-sep {
+  color: var(--border2);
+  font-size: 18px;
+}
+
+.brand-sub {
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 3px;
+  color: var(--gray2);
+}
+
+/* Market status badges */
+.market-status-row {
+  display: flex;
+  gap: 8px;
+}
+
+.mkt-badge {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  padding: 3px 8px;
+  border-radius: 2px;
+}
+
+.mkt-badge.open {
+  background: rgba(0, 255, 65, 0.12);
+  color: var(--green);
+  border: 1px solid rgba(0, 255, 65, 0.25);
+}
+
+.mkt-badge.closed {
+  background: rgba(255, 49, 49, 0.08);
+  color: var(--red-dim);
+  border: 1px solid rgba(255, 49, 49, 0.2);
+}
+
+/* Clock */
+.header-clock {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1px;
+}
+
+.clock-time {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--white);
+  letter-spacing: 1px;
+}
+
+.clock-date {
+  font-size: 9px;
+  letter-spacing: 1px;
+}
+
+/* ── Body Layout ────────────────────────────────────────────── */
+.terminal-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ── Sidebar ────────────────────────────────────────────────── */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  width: var(--sidebar-w);
+  min-width: var(--sidebar-w);
+  background: var(--bg1);
+  border-right: 1px solid var(--border);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.sidebar-logo {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+  padding: 16px 14px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.sidebar-logo-r {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--green);
+  text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+}
+
+.sidebar-logo-ft {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gray2);
+  letter-spacing: 2px;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 0;
+  flex: 1;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 9px 14px;
+  color: var(--gray2);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 1.5px;
+  text-align: left;
+  transition: background 0.1s, color 0.1s;
+  position: relative;
+  border-left: 2px solid transparent;
+}
+
+.nav-item:hover:not(.disabled) {
+  background: var(--bg3);
+  color: var(--white);
+}
+
+.nav-item.active {
+  color: var(--green);
+  background: rgba(0, 255, 65, 0.06);
+  border-left-color: var(--green);
+}
+
+.nav-item.disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.nav-icon {
+  font-size: 11px;
+  width: 14px;
+  text-align: center;
+}
+
+.nav-label { flex: 1; }
+
+.nav-badge {
+  font-size: 7px;
+  padding: 1px 4px;
+  background: var(--bg4);
+  color: var(--gray);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  letter-spacing: 0.5px;
+}
+
+.sidebar-footer {
+  padding: 10px 14px;
+  border-top: 1px solid var(--border);
+}
+
+.footer-line {
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--gray2);
+  line-height: 1.6;
+}
+
+.footer-line.dim { color: var(--gray); }
+
+/* ── Main Content ───────────────────────────────────────────── */
+.terminal-main {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+}
+
+/* ── Macro Panel ────────────────────────────────────────────── */
+.macro-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border2) transparent;
+}
+
+.macro-panel::-webkit-scrollbar       { width: 4px; }
+.macro-panel::-webkit-scrollbar-track { background: transparent; }
+.macro-panel::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+/* ── Ticker Tape ────────────────────────────────────────────── */
+.ticker-wrap {
+  background: var(--bg1);
+  border-bottom: 1px solid var(--border);
+  padding: 5px 0;
+  overflow: hidden;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.ticker-track {
+  display: inline-flex;
+  gap: 0;
+  animation: ticker-scroll 55s linear infinite;
+  will-change: transform;
+}
+
+.ticker-track:hover { animation-play-state: paused; }
+
+@keyframes ticker-scroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.ticker-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 20px;
+  border-right: 1px solid var(--border);
+  font-size: 10px;
+  color: var(--white);
+}
+
+.ticker-sym {
+  color: var(--gray2);
+  letter-spacing: 1px;
+  font-size: 9px;
+}
+
+/* ── Status Bar ─────────────────────────────────────────────── */
+.status-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  background: var(--bg1);
+  border-bottom: 1px solid var(--border);
+  font-size: 10px;
+  flex-shrink: 0;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.status-dot.live  { background: var(--green); box-shadow: 0 0 6px var(--green); }
+.status-dot.pulse { background: var(--amber); animation: blink 0.5s ease infinite alternate; }
+
+@keyframes blink { from { opacity: 1; } to { opacity: 0.2; } }
+
+.status-source { margin-left: auto; }
+
+/* ── Panel Sections ─────────────────────────────────────────── */
+.panel-section {
+  margin: 0 12px 4px;
+  flex-shrink: 0;
+}
+
+/* ── Section Header ─────────────────────────────────────────── */
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  padding-top: 10px;
+}
+
+.section-title {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  color: var(--gray2);
+  white-space: nowrap;
+}
+
+.section-badge {
+  font-size: 9px;
+  padding: 1px 6px;
+  background: var(--bg2);
+  color: var(--gray);
+  border: 1px solid var(--border2);
+  border-radius: 2px;
+  letter-spacing: 1px;
+}
+
+.section-line {
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* ── Dólar Grid ─────────────────────────────────────────────── */
+.dolar-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+}
+
+.dolar-card {
+  background: var(--bg1);
+  border: 1px solid var(--border);
+  padding: 10px 12px;
+  border-radius: 2px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: border-color 0.15s;
+}
+
+.dolar-card:hover { border-color: var(--border2); }
+.dolar-card.error-card { opacity: 0.5; }
+
+.dolar-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.dolar-main {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--white);
+  letter-spacing: -0.5px;
+  line-height: 1.1;
+}
+
+.dolar-peso {
+  font-size: 14px;
+  color: var(--gray2);
+  margin-right: 2px;
+}
+
+.dolar-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--gray2);
+}
+
+.dolar-time {
+  font-size: 9px;
+  margin-top: 2px;
+}
+
+/* ── Markets Row ────────────────────────────────────────────── */
+.markets-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* ── Merval Box ─────────────────────────────────────────────── */
+.merval-box {
+  background: var(--bg1);
+  border: 1px solid var(--border);
+  padding: 12px 14px;
+  border-radius: 2px;
+  margin-bottom: 8px;
+}
+
+.merval-box.error-box { opacity: 0.5; }
+
+.merval-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--gray2);
+  margin-bottom: 4px;
+}
+
+.merval-value {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -1px;
+  line-height: 1;
+}
+
+.merval-change {
+  font-size: 13px;
+  font-weight: 500;
+  margin-top: 4px;
+}
+
+.merval-state {
+  margin-top: 6px;
+  letter-spacing: 0.5px;
+}
+
+/* ── Stocks Table ───────────────────────────────────────────── */
+.stocks-title {
+  letter-spacing: 1.5px;
+  margin-bottom: 5px;
+}
+
+.stocks-table {
+  font-size: 11px;
+}
+
+.stocks-table th {
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--gray);
+  letter-spacing: 1.5px;
+  padding: 3px 6px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+
+.stocks-table td {
+  padding: 5px 6px;
+  border-bottom: 1px solid var(--border);
+  color: var(--white);
+}
+
+.stocks-table tr:hover td { background: var(--bg2); }
+.stocks-table tr.row-error td { opacity: 0.4; }
+
+.ticker-cell {
+  font-weight: 700;
+  color: var(--amber);
+  letter-spacing: 1px;
+}
+
+/* ── TradingView Charts — USA Markets ───────────────────────── */
+.tv-charts-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
+}
+
+.tv-chart-card {
+  background: var(--bg1);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.tv-chart-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  padding: 6px 10px 4px;
+  flex-shrink: 0;
+}
+
+.tv-badge {
+  font-size: 8px;
+  font-weight: 400;
+  letter-spacing: 0.5px;
+  text-transform: none;
+}
+
+.tv-chart-body {
+  height: 110px;
+  flex-shrink: 0;
+}
+
+.tradingview-widget-container,
+.tradingview-widget-container iframe {
+  width: 100% !important;
+  height: 100% !important;
+  border: none;
+}
+
+/* ── Stale data (último valor conocido) ─────────────────────── */
+.stale {
+  border-color: rgba(255, 179, 0, 0.2) !important;
+}
+
+.section-stale {
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  padding: 1px 5px;
+  background: rgba(255, 179, 0, 0.1);
+  color: var(--amber);
+  border: 1px solid rgba(255, 179, 0, 0.3);
+  border-radius: 2px;
+}
+
+.stale-badge {
+  display: inline-block;
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 0px 4px;
+  margin-left: 6px;
+  background: rgba(255, 179, 0, 0.1);
+  color: var(--amber);
+  border: 1px solid rgba(255, 179, 0, 0.25);
+  border-radius: 2px;
+  vertical-align: middle;
+}
+
+/* ── Macro Indicators ───────────────────────────────────────── */
+.macro-indicators-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.macro-card {
+  background: var(--bg1);
+  border: 1px solid var(--border);
+  padding: 12px 14px;
+  border-radius: 2px;
+}
+
+.macro-card-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--gray2);
+  margin-bottom: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.macro-card-value {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--white);
+}
+
+.macro-card-unit {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--gray2);
+}
+
+.macro-card-sub {
+  font-size: 9px;
+  margin-top: 6px;
+  letter-spacing: 0.5px;
+}
+
+/* ── Loading Screen ─────────────────────────────────────────── */
+.panel-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 16px;
+}
+
+.loading-spinner {
+  width: 28px;
+  height: 28px;
+  border: 2px solid var(--border2);
+  border-top-color: var(--green);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.loading-text {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  color: var(--green);
+}
+
+.loading-sub {
+  font-size: 10px;
+  letter-spacing: 1.5px;
+}
+
+/* ── Responsive ─────────────────────────────────────────────── */
+@media (max-width: 1100px) {
+  .dolar-grid            { grid-template-columns: repeat(3, 1fr); }
+  .macro-indicators-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 800px) {
+  :root { --sidebar-w: 44px; }
+  .nav-label, .nav-badge, .sidebar-footer, .sidebar-logo-ft { display: none; }
+  .sidebar-logo { justify-content: center; padding: 12px 0; }
+  .nav-item     { justify-content: center; padding: 10px; }
+  .markets-row  { grid-template-columns: 1fr; }
+  .brand-sub    { display: none; }
+}
