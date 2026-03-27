@@ -44,6 +44,14 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/datos/, ''),
       },
+
+      // Ambito Financiero — riesgo país EMBI+ (público, sin auth)
+      '/api/ambito': {
+        target: 'https://mercados.ambito.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/ambito/, ''),
+        headers: { 'Accept': 'application/json' },
+      },
     },
   },
 })

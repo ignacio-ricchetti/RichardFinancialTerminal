@@ -36,7 +36,7 @@ export default function Sidebar({ activePanel, setActivePanel }) {
 
       <div className="sidebar-footer">
         <div className="footer-line">FASE 1 — PANEL MACRO</div>
-        <div className="footer-line dim">v1.0.0 — 2025</div>
+        <div className="footer-line dim">v1.0.0 — 2026</div>
       </div>
     </aside>
   );
