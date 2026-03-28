@@ -8,6 +8,7 @@ const BCRA_PROXY   = '/api/bcra';
 const ESTBCRA      = '/api/estadisticas';
 const DATOS_PROXY  = '/api/datos';
 const AMBITO_PROXY = '/api/ambito';
+const ARGDATOS     = '/api/argdatos';
 
 // ── Helpers ────────────────────────────────────────────────────
 
@@ -173,39 +174,18 @@ export async function fetchCauciones() {
 // ── BCRA ────────────────────────────────────────────────────────
 
 async function fetchBCRAVars() {
-  // API v3 — endpoint oficial de principales variables
-  try {
-    const data = await apiFetch(
-      `${BCRA_PROXY}/estadisticasmonetarias/v3.0/Dato/Variable/Principales`
-    );
-    if (Array.isArray(data))               return data;
-    if (Array.isArray(data?.results))      return data.results;
-    if (Array.isArray(data?.data))         return data.data;
-  } catch { /* continúa con fallback individual */ }
+  // API v4.0 — estadisticasmonetarias/v3.0 deprecado en feb 2026
+  const data = await apiFetch(`${BCRA_PROXY}/estadisticas/v4.0/monetarias`);
+  const arr  = data?.results ?? (Array.isArray(data) ? data : []);
+  if (!arr.length) throw new Error('BCRA: sin variables');
 
-  // Fallback: fetching variables 1 (reservas) y 27 (tasa) individualmente
-  const today = new Date().toISOString().slice(0, 10);
-  const from  = new Date(Date.now() - 14 * 86400000).toISOString().slice(0, 10);
-
-  const [r1, r27, r26] = await Promise.allSettled([
-    apiFetch(`${BCRA_PROXY}/estadisticasmonetarias/v3.0/Dato/Variable/1/${from}/${today}`),
-    apiFetch(`${BCRA_PROXY}/estadisticasmonetarias/v3.0/Dato/Variable/27/${from}/${today}`),
-    apiFetch(`${BCRA_PROXY}/estadisticasmonetarias/v3.0/Dato/Variable/26/${from}/${today}`),
-  ]);
-
-  const vars = [];
-  for (const [res, id, desc] of [
-    [r1,  1,  'Reservas internacionales del BCRA (u$s - millones)'],
-    [r27, 27, 'Tasa de política monetaria (en % n.a.)'],
-    [r26, 26, 'Tasa de pases pasivos (en % n.a.)'],
-  ]) {
-    if (res.status !== 'fulfilled') continue;
-    const rows = res.value?.results ?? res.value?.data ?? (Array.isArray(res.value) ? res.value : []);
-    if (!rows.length) continue;
-    const last = rows[rows.length - 1];
-    vars.push({ idVariable: id, descripcion: desc, fecha: last.fecha, valor: last.valor });
-  }
-  return vars;
+  // Normalizar campos v4.0 → estructura esperada por findReservas/findTasa
+  return arr.map(x => ({
+    idVariable: x.idVariable ?? x.id,
+    descripcion: x.descripcion,
+    fecha: x.ultFechaInformada ?? x.fecha,
+    valor: x.ultValorInformado ?? x.valor,
+  }));
 }
 
 function findReservas(vars) {
@@ -268,36 +248,63 @@ async function fetchRiesgoPais() {
     }
   } catch { /* sin token o sin acceso — continúa */ }
 
-  // 2. Fallback: Ambito Financiero (público)
-  const data = await apiFetch(`${AMBITO_PROXY}/riesgo-pais/info`);
-  if (!data) throw new Error('Sin datos riesgo país');
+  // 2. ArgentinaDatos (público, sin auth) — EMBI+ ARG diario
+  try {
+    const data = await apiFetch(`${ARGDATOS}/v1/finanzas/indices/riesgo-pais/ultimo`);
+    if (data?.valor != null && data?.fecha) {
+      return { fecha: data.fecha, valor: Number(data.valor), fuente: 'argdatos' };
+    }
+  } catch { /* continúa */ }
 
-  // Ambito puede retornar { fecha, valor } con valor como string "823"
-  const valor = parseInt(String(data.valor ?? data.v ?? '0').replace(/[^0-9]/g, ''), 10);
-  if (!valor) throw new Error('Ambito: valor riesgo país inválido');
+  // 3. Ambito Financiero (puede estar caído)
+  try {
+    const data = await apiFetch(`${AMBITO_PROXY}/riesgo-pais/info`);
+    if (!data) throw new Error('Sin datos');
+    const valor = parseInt(String(data.valor ?? data.v ?? '0').replace(/[^0-9]/g, ''), 10);
+    if (!valor) throw new Error('valor inválido');
+    let fecha = data.fecha ?? new Date().toISOString().slice(0, 10);
+    if (fecha.includes('/')) {
+      const [day, month, yearTime] = fecha.split('/');
+      const year = (yearTime ?? '').split(' ')[0];
+      fecha = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+    }
+    return { fecha, valor, fuente: 'ambito' };
+  } catch { /* continúa */ }
 
-  // Normalizar fecha (Ambito: "26/03/2026 17:00" → "2026-03-26")
-  let fecha = data.fecha ?? new Date().toISOString().slice(0, 10);
-  if (fecha.includes('/')) {
-    const [day, month, yearTime] = fecha.split('/');
-    const year = (yearTime ?? '').split(' ')[0];
-    fecha = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
-  }
-
-  return { fecha, valor, fuente: 'ambito' };
+  throw new Error('Sin datos riesgo país');
 }
 
-// ── INFLACIÓN IPC — INDEC via datos.gob.ar ────────────────────
-// :percent_change devuelve la variación mensual en decimal (0.028 = 2.8%)
-// limit=13 → 13 meses para calcular el acumulado anual de 12 meses
-// Series probadas en orden de preferencia:
-//   148.3_INIVELGENE_DICI_M_26  = IPC General nacional (INDEC)
-//   148.3_INUCLEADOS0_DICI_M_26 = IPC Núcleo nacional
+// ── INFLACIÓN IPC — INDEC ──────────────────────────────────────
+// Fuente primaria: ArgentinaDatos (agrega datos INDEC, histórico desde 1943)
+//   valor ya viene en % mensual (2.9 = 2.9%), sorted más antiguo primero
+// Fallback: datos.gob.ar series activas (IPC Núcleo, IPC Regulados)
+//   148.3_INUCLEONAL_DICI_M_19 = IPC Núcleo Nacional (activa)
+//   148.3_IREGULANAL_DICI_M_22 = IPC Regulados Nacional (activa)
 
 async function fetchInflacion() {
+  // 1. ArgentinaDatos — IPC mensual (fuente INDEC, actualizado al día)
+  try {
+    const data = await apiFetch(`${ARGDATOS}/v1/finanzas/indices/inflacion`);
+    if (Array.isArray(data) && data.length) {
+      const validRows = data.filter(r => r.valor != null);
+      if (validRows.length >= 1) {
+        const last13 = validRows.slice(-13);
+        const latest = last13[last13.length - 1];
+        const mensual = Number(latest.valor);
+        const last12  = last13.slice(-12);
+        // valor ya viene en % (2.9), dividir por 100 para componer
+        const anual = last12.length >= 12
+          ? (last12.reduce((acc, r) => acc * (1 + Number(r.valor) / 100), 1) - 1) * 100
+          : null;
+        return { fecha: latest.fecha, mensual, anual, serie: 'IPC general' };
+      }
+    }
+  } catch { /* continúa con fallback */ }
+
+  // 2. Fallback: datos.gob.ar — series IPC activas (IPC General deprecada)
   const SERIES_IDS = [
-    { id: '148.3_INIVELGENE_DICI_M_26', label: 'IPC general' },
-    { id: '148.3_INUCLEADOS0_DICI_M_26', label: 'IPC núcleo' },
+    { id: '148.3_INUCLEONAL_DICI_M_19', label: 'IPC núcleo' },
+    { id: '148.3_IREGULANAL_DICI_M_22', label: 'IPC regulados' },
   ];
 
   for (const { id, label } of SERIES_IDS) {

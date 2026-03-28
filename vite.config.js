@@ -52,6 +52,14 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/api\/ambito/, ''),
         headers: { 'Accept': 'application/json' },
       },
+
+      // ArgentinaDatos — riesgo país e inflación IPC (público, sin auth)
+      '/api/argdatos': {
+        target: 'https://api.argentinadatos.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/argdatos/, ''),
+        headers: { 'Accept': 'application/json' },
+      },
     },
   },
 })
