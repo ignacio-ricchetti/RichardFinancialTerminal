@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import Sidebar from './components/Sidebar';
 import MacroPanel from './components/MacroPanel';
+import Mercados from './components/Mercados';
 import './index.css';
 
 function LiveClock() {
@@ -77,7 +78,8 @@ export default function App() {
       <div className="terminal-body">
         <Sidebar activePanel={activePanel} setActivePanel={setActivePanel} />
         <main className="terminal-main">
-          {activePanel === 'macro' && <MacroPanel />}
+          {activePanel === 'macro'    && <MacroPanel />}
+          {activePanel === 'mercados' && <Mercados />}
         </main>
       </div>
 

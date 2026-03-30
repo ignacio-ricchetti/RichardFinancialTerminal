@@ -60,6 +60,15 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/api\/argdatos/, ''),
         headers: { 'Accept': 'application/json' },
       },
+
+      // Anthropic API — análisis IA (proxy para evitar bloqueo CORS en browser)
+      // La x-api-key viene del cliente vía VITE_ANTHROPIC_API_KEY
+      '/api/anthropic': {
+        target: 'https://api.anthropic.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/anthropic/, ''),
+        headers: { 'anthropic-version': '2023-06-01' },
+      },
     },
   },
 })

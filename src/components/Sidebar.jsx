@@ -1,6 +1,6 @@
 const NAV_ITEMS = [
   { id: 'macro',       label: 'MACRO PANEL',  icon: '▣', available: true  },
-  { id: 'mercados',    label: 'MERCADOS',      icon: '◈', available: false },
+  { id: 'mercados',    label: 'MERCADOS',      icon: '◈', available: true  },
   { id: 'bonos',       label: 'BONOS / FCI',  icon: '◇', available: false },
   { id: 'portafolio',  label: 'PORTAFOLIO',   icon: '▦', available: false },
   { id: 'commodities', label: 'COMMODITIES',  icon: '◆', available: false },
@@ -35,8 +35,8 @@ export default function Sidebar({ activePanel, setActivePanel }) {
       </nav>
 
       <div className="sidebar-footer">
-        <div className="footer-line">FASE 1 — PANEL MACRO</div>
-        <div className="footer-line dim">v1.0.0 — 2026</div>
+        <div className="footer-line">FASE 2 — MERCADOS</div>
+        <div className="footer-line dim">v1.1.0 — 2026</div>
       </div>
     </aside>
   );
