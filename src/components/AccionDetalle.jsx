@@ -3,6 +3,7 @@ import {
   COMPANY_NAMES,
   fetchMacroParaIA,
   fetchFundamentals,
+  fetchStockVariations,
 } from '../services/mercadosApi';
 
 // ── Helpers ───────────────────────────────────────────────────
@@ -171,55 +172,67 @@ function FundamentalesPanel({ ticker, stockData, fundamentals, fundLoading }) {
   );
 }
 
-// ── Panel Noticias ────────────────────────────────────────────
-// Sin API de noticias disponible (CORS); links directos a búsqueda Ámbito
+// ── Panel Rava ────────────────────────────────────────────────
 
-const NOTICIA_TITULOS = [
-  'Análisis y perspectivas bursátiles',
-  'Resultados financieros y balances',
-  'Novedades corporativas y estrategia',
-  'Cobertura de mercado y volumen operado',
-  'Contexto sectorial y macro argentina',
+const RAVA_SECTIONS = [
+  { label: 'Análisis técnico',     anchor: '#analisis',    desc: 'Indicadores y señales técnicas' },
+  { label: 'Noticias',             anchor: '#noticias',    desc: 'Últimas noticias de la empresa' },
+  { label: 'Balances y resultados',anchor: '#balances',    desc: 'Estados financieros trimestrales' },
+  { label: 'Opinión de analistas', anchor: '#opinion',     desc: 'Recomendaciones del mercado' },
+  { label: 'Chat / Foro',          anchor: '#chat',        desc: 'Debate de inversores' },
+  { label: 'Cotización histórica', anchor: '#historico',   desc: 'Serie histórica de precios' },
 ];
 
-function NoticiasPanel({ ticker }) {
-  const searchUrl = `https://www.ambito.com/buscar?q=${ticker}`;
-  const today = new Date().toLocaleDateString('es-AR', {
-    day: '2-digit', month: '2-digit', year: 'numeric',
-  });
+function RavaPanel({ ticker }) {
+  const baseUrl = `https://www.rava.com/perfil/${ticker}`;
 
   return (
-    <div className="det-panel">
+    <div className="det-panel rava-panel">
       <div className="det-panel-title">
-        NOTICIAS
+        ANÁLISIS Y OPINIÓN
         <a
-          href={searchUrl}
+          href={baseUrl}
           target="_blank"
           rel="noopener noreferrer"
           className="noticias-fuente-link"
         >
-          Ámbito Financiero ↗
+          Rava Bursátil ↗
         </a>
       </div>
-      <div className="noticias-list">
-        {NOTICIA_TITULOS.map((titulo, i) => (
+
+      <div className="rava-intro">
+        Perfil completo de <strong>{ticker}</strong> en Rava Bursátil —
+        análisis técnico, noticias, balances y opiniones de analistas.
+      </div>
+
+      <div className="rava-links">
+        {RAVA_SECTIONS.map(({ label, anchor, desc }) => (
           <a
-            key={i}
-            href={searchUrl}
+            key={anchor}
+            href={`${baseUrl}${anchor}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="noticia-item"
+            className="rava-link-item"
           >
-            <div className="noticia-titulo">
-              {titulo} — {ticker}
-            </div>
-            <div className="noticia-meta">
-              <span className="noticia-fuente">Ámbito Financiero</span>
-              <span className="noticia-sep">·</span>
-              <span className="noticia-fecha">{today}</span>
-            </div>
+            <span className="rava-link-label">{label}</span>
+            <span className="rava-link-desc">{desc}</span>
           </a>
         ))}
+      </div>
+
+      <div className="rava-cta-row">
+        <a
+          href={baseUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="rava-cta-btn"
+        >
+          Ver perfil completo en Rava →
+        </a>
+      </div>
+
+      <div className="fund-timestamp">
+        Fuente: Rava Bursátil · rava.com/perfil/{ticker}
       </div>
     </div>
   );
@@ -435,6 +448,7 @@ export default function AccionDetalle({ ticker, stockData, onBack }) {
   });
   const [fundamentals, setFundamentals] = useState(null);
   const [fundLoading,  setFundLoading]  = useState(true);
+  const [variations,   setVariations]   = useState(null);
 
   useEffect(() => {
     fetchMacroParaIA().then(setMacro);
@@ -443,15 +457,28 @@ export default function AccionDetalle({ ticker, stockData, onBack }) {
   useEffect(() => {
     setFundLoading(true);
     setFundamentals(null);
+    setVariations(null);
     fetchFundamentals(ticker).then(data => {
       setFundamentals(data);
       setFundLoading(false);
     });
+    fetchStockVariations(ticker).then(setVariations);
   }, [ticker]);
 
   const variacion = stockData?.changePct;
   const isPos = variacion > 0;
   const isNeg = variacion < 0;
+
+  function varBadge(val, label) {
+    if (val == null) return null;
+    const pos = val > 0;
+    const neg = val < 0;
+    return (
+      <span className={`accion-var-badge ${pos ? 'pos-g' : neg ? 'neg-r' : 'neutral'}`}>
+        {label}&nbsp;{pos ? '+' : ''}{val.toFixed(1)}%
+      </span>
+    );
+  }
 
   return (
     <div className="accion-detalle">
@@ -473,9 +500,19 @@ export default function AccionDetalle({ ticker, stockData, onBack }) {
               {isPos ? '+' : ''}{Number(variacion).toFixed(2)}%
             </span>
           )}
+          {varBadge(variations?.monthlyChange, '1M')}
+          {varBadge(variations?.annualChange,  '1A')}
+          {variations?.weekHigh != null && (
+            <span className="accion-52w">
+              52W&nbsp;
+              <span className="pos-g">{fmt(variations.weekHigh)}</span>
+              &nbsp;/&nbsp;
+              <span className="neg-r">{fmt(variations.weekLow)}</span>
+            </span>
+          )}
         </div>
 
-        <span className="accion-exchange">BCBA · 20 min delay</span>
+        <span className="accion-exchange">BCBA · Yahoo Finance</span>
       </div>
 
       {/* ── Layout dos columnas ── */}
@@ -494,7 +531,7 @@ export default function AccionDetalle({ ticker, stockData, onBack }) {
             fundamentals={fundamentals}
             fundLoading={fundLoading}
           />
-          <NoticiasPanel ticker={ticker} />
+          <RavaPanel ticker={ticker} />
           <IAPanel ticker={ticker} stockData={stockData} macro={macro} fund={fundamentals} />
         </div>
 

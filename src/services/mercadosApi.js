@@ -2,8 +2,8 @@
 // Richard Financial Terminal — Mercados API Service
 // ============================================================
 
-const BYMA_PROXY = '/api/byma';
 const ARGDATOS   = '/api/argdatos';
+const YAHOO_PROXY = '/api/yahoo';
 
 // ── Tickers del Merval ────────────────────────────────────────
 
@@ -127,6 +127,186 @@ export const FUNDAMENTALS = {
     rev_growth:   ND,
     earn_growth:  ND,
   },
+  ALUA: {
+    cap_mercado:  'USD 1.1B',
+    pe_ratio:     '8.2x',
+    ev_ebitda:    '5.1x',
+    precio_libro: '1.2x',
+    roe:          '14.8%',
+    roa:          '8.1%',
+    margen_neto:  '11.9%',
+    deuda_ebitda: '0.8x',
+    rev_growth:   ND,
+    earn_growth:  ND,
+  },
+  CRES: {
+    cap_mercado:  'USD 0.5B',
+    pe_ratio:     '6.1x',
+    ev_ebitda:    '7.2x',
+    precio_libro: '0.9x',
+    roe:          '12.3%',
+    roa:          '4.1%',
+    margen_neto:  '8.2%',
+    deuda_ebitda: '3.2x',
+    rev_growth:   ND,
+    earn_growth:  ND,
+  },
+  SUPV: {
+    cap_mercado:  'USD 0.7B',
+    pe_ratio:     '5.4x',
+    ev_ebitda:    ND,
+    precio_libro: '1.5x',
+    roe:          '22.4%',
+    roa:          '2.8%',
+    margen_neto:  '18.1%',
+    deuda_ebitda: ND,
+    rev_growth:   ND,
+    earn_growth:  ND,
+  },
+  TECO2: {
+    cap_mercado:  'USD 1.3B',
+    pe_ratio:     '11.2x',
+    ev_ebitda:    '4.5x',
+    precio_libro: '1.1x',
+    roe:          '9.8%',
+    roa:          '3.9%',
+    margen_neto:  '7.1%',
+    deuda_ebitda: '2.8x',
+    rev_growth:   ND,
+    earn_growth:  ND,
+  },
+  LOMA: {
+    cap_mercado:  'USD 0.8B',
+    pe_ratio:     '9.1x',
+    ev_ebitda:    '4.8x',
+    precio_libro: '1.3x',
+    roe:          '14.2%',
+    roa:          '7.1%',
+    margen_neto:  '10.4%',
+    deuda_ebitda: '0.5x',
+    rev_growth:   ND,
+    earn_growth:  ND,
+  },
+  MIRG: {
+    cap_mercado:  'USD 0.2B',
+    pe_ratio:     '7.3x',
+    ev_ebitda:    '5.0x',
+    precio_libro: '2.1x',
+    roe:          '29.6%',
+    roa:          '10.2%',
+    margen_neto:  '4.3%',
+    deuda_ebitda: '0.3x',
+    rev_growth:   ND,
+    earn_growth:  ND,
+  },
+  BYMA: {
+    cap_mercado:  'USD 0.3B',
+    pe_ratio:     '8.1x',
+    ev_ebitda:    '6.0x',
+    precio_libro: '1.8x',
+    roe:          '22.1%',
+    roa:          '8.3%',
+    margen_neto:  '31.7%',
+    deuda_ebitda: ND,
+    rev_growth:   ND,
+    earn_growth:  ND,
+  },
+  CVH: {
+    cap_mercado:  'USD 0.6B',
+    pe_ratio:     '9.4x',
+    ev_ebitda:    '5.5x',
+    precio_libro: '1.2x',
+    roe:          '13.1%',
+    roa:          '5.2%',
+    margen_neto:  '9.3%',
+    deuda_ebitda: '3.5x',
+    rev_growth:   ND,
+    earn_growth:  ND,
+  },
+  VALO: {
+    cap_mercado:  'USD 0.2B',
+    pe_ratio:     '6.3x',
+    ev_ebitda:    ND,
+    precio_libro: '1.3x',
+    roe:          '20.4%',
+    roa:          '3.1%',
+    margen_neto:  '21.8%',
+    deuda_ebitda: ND,
+    rev_growth:   ND,
+    earn_growth:  ND,
+  },
+  CEPU: {
+    cap_mercado:  'USD 0.9B',
+    pe_ratio:     '7.2x',
+    ev_ebitda:    '4.1x',
+    precio_libro: '1.1x',
+    roe:          '15.9%',
+    roa:          '8.8%',
+    margen_neto:  '23.7%',
+    deuda_ebitda: '0.9x',
+    rev_growth:   ND,
+    earn_growth:  ND,
+  },
+  TGSU2: {
+    cap_mercado:  'USD 1.0B',
+    pe_ratio:     '6.1x',
+    ev_ebitda:    '3.6x',
+    precio_libro: '1.5x',
+    roe:          '24.8%',
+    roa:          '11.2%',
+    margen_neto:  '27.9%',
+    deuda_ebitda: '0.6x',
+    rev_growth:   ND,
+    earn_growth:  ND,
+  },
+  DGCU2: {
+    cap_mercado:  'USD 0.1B',
+    pe_ratio:     '8.3x',
+    ev_ebitda:    '4.2x',
+    precio_libro: '1.0x',
+    roe:          '12.1%',
+    roa:          '5.8%',
+    margen_neto:  '9.8%',
+    deuda_ebitda: '1.0x',
+    rev_growth:   ND,
+    earn_growth:  ND,
+  },
+  MOLI: {
+    cap_mercado:  'USD 0.4B',
+    pe_ratio:     '10.2x',
+    ev_ebitda:    '6.1x',
+    precio_libro: '1.4x',
+    roe:          '13.7%',
+    roa:          '5.1%',
+    margen_neto:  '4.8%',
+    deuda_ebitda: '1.5x',
+    rev_growth:   ND,
+    earn_growth:  ND,
+  },
+  AGRO: {
+    cap_mercado:  'USD 0.06B',
+    pe_ratio:     '9.1x',
+    ev_ebitda:    '5.2x',
+    precio_libro: '1.1x',
+    roe:          '12.4%',
+    roa:          '7.3%',
+    margen_neto:  '8.1%',
+    deuda_ebitda: '0.4x',
+    rev_growth:   ND,
+    earn_growth:  ND,
+  },
+  RICHH: {
+    cap_mercado:  'USD 0.03B',
+    pe_ratio:     ND,
+    ev_ebitda:    ND,
+    precio_libro: '0.8x',
+    roe:          '5.1%',
+    roa:          '2.2%',
+    margen_neto:  '3.1%',
+    deuda_ebitda: ND,
+    rev_growth:   ND,
+    earn_growth:  ND,
+  },
 };
 
 export const FUNDAMENTALS_EMPTY = {
@@ -142,63 +322,86 @@ export const FUNDAMENTALS_EMPTY = {
   earn_growth:  ND,
 };
 
-// ── Helpers de parseo BYMA (espeja api.js, sin tocar ese archivo) ─
+// ── fetch precios en tiempo real vía Yahoo Finance v8/chart ──────
+// BYMA Open Data requiere Bearer token (401).
+// Yahoo v8/finance/chart funciona sin auth y devuelve precios en ARS.
+// Se hacen 20 requests en paralelo (una por ticker).
 
-function bymaList(raw) {
-  if (Array.isArray(raw))          return raw;
-  if (Array.isArray(raw?.data))    return raw.data;
-  if (Array.isArray(raw?.content)) return raw.content;
-  return [];
+async function fetchOneChart(yahooSym, rangeParam = '5d', intervalParam = '1d') {
+  const url = `${YAHOO_PROXY}/v8/finance/chart/${yahooSym}` +
+              `?interval=${intervalParam}&range=${rangeParam}`;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 10_000);
+  const res = await fetch(url, {
+    signal: controller.signal,
+    headers: { Accept: 'application/json' },
+  });
+  clearTimeout(timer);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
 }
-
-function bymaPrice(item) {
-  if (!item) return null;
-  const price = item.trade          ?? item.ultimoPrecio  ?? item.importe
-              ?? item.precio        ?? item.last           ?? item.c ?? null;
-  const changePct = item.percentualVariation ?? item.variacion ?? item.var
-                  ?? item.variacionPorcentual ?? item.pctChange ?? null;
-  const volume = item.volume       ?? item.volumen        ?? item.nominalVolume
-               ?? item.cantidadOperada ?? item.nominal    ?? null;
-  return {
-    price:     price     != null ? Number(price)     : null,
-    changePct: changePct != null ? Number(changePct) : null,
-    volume:    volume    != null ? Number(volume)    : null,
-  };
-}
-
-// ── fetch leading-equities (todos los 20 tickers del Merval) ──
 
 export async function fetchLeadingEquities() {
-  try {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 12_000);
-    const res = await fetch(`${BYMA_PROXY}/leading-equities`, {
-      signal: controller.signal,
-      headers: { Accept: 'application/json' },
-    });
-    clearTimeout(timer);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const raw  = await res.json();
-    const items = bymaList(raw);
+  const entries = Object.entries(YAHOO_TICKERS);
+  const settled = await Promise.allSettled(
+    entries.map(([, yahooSym]) => fetchOneChart(yahooSym, '5d', '1d'))
+  );
 
-    const map = {};
-    for (const item of items) {
-      const sym = (item.symbol ?? item.simbolo ?? item.ticker ?? '')
-        .replace(/\s.*$/, '')    // quita sufijos tipo "24hs"
-        .toUpperCase();
-      if (!sym) continue;
-      const nums = bymaPrice(item);
-      if (nums) map[sym] = { ...nums, ok: true };
+  const map = {};
+  settled.forEach((result, i) => {
+    if (result.status !== 'fulfilled') return;
+    const meta = result.value?.chart?.result?.[0]?.meta;
+    if (!meta) return;
+    const bymaKey   = entries[i][0];
+    const price     = meta.regularMarketPrice   ?? null;
+    const prevClose = meta.chartPreviousClose   ?? null;
+    const changePct = (price != null && prevClose && prevClose !== 0)
+      ? ((price - prevClose) / prevClose) * 100
+      : null;
+    if (price != null) {
+      map[bymaKey] = {
+        price,
+        changePct,
+        volume: meta.regularMarketVolume ?? null,
+        ok: true,
+      };
     }
-    return map;
+  });
+  return map;
+}
+
+// ── fetch variaciones mensual y anual para panel de detalle ──────
+
+export async function fetchStockVariations(ticker) {
+  const yahooSym = YAHOO_TICKERS[ticker];
+  if (!yahooSym) return null;
+  try {
+    const data  = await fetchOneChart(yahooSym, '1y', '1mo');
+    const result = data?.chart?.result?.[0];
+    if (!result) return null;
+
+    const meta    = result.meta;
+    const closes  = (result.indicators?.quote?.[0]?.close ?? [])
+                      .filter(c => c != null);
+    const current = meta.regularMarketPrice;
+    const prev1m  = closes.length >= 2 ? closes[closes.length - 2] : null;
+    const prev1y  = closes.length >= 2 ? closes[0] : null;
+
+    return {
+      monthlyChange: (prev1m && prev1m !== 0)
+        ? ((current - prev1m) / prev1m) * 100 : null,
+      annualChange: (prev1y && prev1y !== 0)
+        ? ((current - prev1y) / prev1y) * 100 : null,
+      weekHigh: meta.fiftyTwoWeekHigh ?? null,
+      weekLow:  meta.fiftyTwoWeekLow  ?? null,
+    };
   } catch {
-    return {};
+    return null;
   }
 }
 
 // ── fetch fundamentals desde Yahoo Finance ────────────────────
 
-const YAHOO_PROXY = '/api/yahoo';
 const YAHOO_MODULES = 'defaultKeyStatistics,financialData,summaryDetail';
 
 function yahooRaw(field) {

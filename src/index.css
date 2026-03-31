@@ -1489,7 +1489,114 @@ table  { border-collapse: collapse; width: 100%; }
   letter-spacing: 0.5px;
 }
 
-/* ── Noticias ── */
+/* ── Variaciones mensuales/anuales en header ── */
+.accion-var-badge {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 2px;
+  white-space: nowrap;
+}
+.accion-var-badge.pos-g {
+  color: #22C55E;
+  background: rgba(34, 197, 94, 0.1);
+}
+.accion-var-badge.neg-r {
+  color: #EF4444;
+  background: rgba(239, 68, 68, 0.1);
+}
+.accion-var-badge.neutral {
+  color: var(--text2);
+  background: var(--bg3);
+}
+.accion-52w {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text2);
+  white-space: nowrap;
+}
+
+/* ── Rava Panel ── */
+.rava-panel { }
+
+.rava-intro {
+  font-family: var(--font-data);
+  font-size: 9px;
+  color: var(--text2);
+  line-height: 1.5;
+  margin-bottom: 10px;
+}
+
+.rava-links {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin-bottom: 10px;
+}
+
+.rava-link-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 7px 8px;
+  background: var(--bg3);
+  border: 1px solid var(--border3);
+  text-decoration: none;
+  transition: border-color 0.15s, background 0.15s;
+  cursor: pointer;
+}
+
+.rava-link-item:hover {
+  border-color: var(--gold-dim);
+  background: rgba(197, 168, 98, 0.05);
+}
+
+.rava-link-item:hover .rava-link-label {
+  color: var(--gold);
+}
+
+.rava-link-label {
+  font-family: var(--font-data);
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text1);
+  transition: color 0.15s;
+}
+
+.rava-link-desc {
+  font-family: var(--font-data);
+  font-size: 8px;
+  color: var(--text2);
+}
+
+.rava-cta-row {
+  margin-bottom: 8px;
+}
+
+.rava-cta-btn {
+  display: inline-block;
+  padding: 7px 14px;
+  background: rgba(197, 168, 98, 0.1);
+  border: 1px solid var(--gold-dim);
+  color: var(--gold);
+  font-family: var(--font-data);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: background 0.15s, border-color 0.15s;
+  width: 100%;
+  text-align: center;
+}
+
+.rava-cta-btn:hover {
+  background: rgba(197, 168, 98, 0.18);
+  border-color: var(--gold);
+}
+
+/* ── Noticias (legacy, mantener por .noticias-fuente-link usado en RavaPanel) ── */
 .noticias-fuente-link {
   font-family: var(--font-data);
   font-size: 8px;
