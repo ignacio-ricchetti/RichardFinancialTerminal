@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
 import {
   COMPANY_NAMES,
-  FUNDAMENTALS,
-  FUNDAMENTALS_EMPTY,
   fetchMacroParaIA,
+  fetchFundamentals,
 } from '../services/mercadosApi';
 
 // ── Helpers ───────────────────────────────────────────────────
@@ -58,26 +57,69 @@ function TradingViewChart({ ticker }) {
 
 // ── Panel Fundamentales ───────────────────────────────────────
 
-const FUND_LABELS = {
-  cap_mercado:  'Capitalización de mercado',
-  pe_ratio:     'P/E ratio',
-  ev_ebitda:    'EV/EBITDA',
-  precio_libro: 'Precio / Valor libro',
-  roe:          'ROE',
-  roa:          'ROA',
-  margen_neto:  'Margen neto',
-  deuda_ebitda: 'Deuda neta / EBITDA',
-};
+// Colores basados en valores crudos de Yahoo Finance
+function fundColorClass(key, rawVal) {
+  if (rawVal == null) return 'dim';
+  switch (key) {
+    case 'pe_ratio':     return rawVal < 15 ? 'pos-g' : rawVal > 30 ? 'neg-r' : 'dim';
+    case 'ev_ebitda':    return rawVal < 10 ? 'pos-g' : rawVal > 20 ? 'neg-r' : 'dim';
+    case 'precio_libro': return rawVal < 2  ? 'pos-g' : rawVal > 5  ? 'neg-r' : 'dim';
+    case 'roe':          return rawVal > 0.15 ? 'pos-g' : rawVal < 0.05 ? 'neg-r' : 'dim';
+    case 'roa':          return rawVal > 0.05 ? 'pos-g' : rawVal < 0.01 ? 'neg-r' : 'dim';
+    case 'margen_neto':  return rawVal > 0.10 ? 'pos-g' : rawVal < 0    ? 'neg-r' : 'dim';
+    case 'deuda_ebitda': return rawVal < 2    ? 'pos-g' : rawVal > 4    ? 'neg-r' : 'dim';
+    case 'rev_growth':   return rawVal > 0    ? 'pos-g' : rawVal < -0.1 ? 'neg-r' : 'dim';
+    default:             return 'dim';
+  }
+}
 
-function FundamentalesPanel({ ticker, stockData }) {
-  const fund = FUNDAMENTALS[ticker] ?? FUNDAMENTALS_EMPTY;
+const FUND_SECTIONS = [
+  {
+    title: 'VALUACIÓN',
+    items: [
+      { key: 'pe_ratio',     label: 'P/E Ratio' },
+      { key: 'ev_ebitda',    label: 'EV/EBITDA' },
+      { key: 'precio_libro', label: 'Precio / Valor libro' },
+    ],
+  },
+  {
+    title: 'RENTABILIDAD',
+    items: [
+      { key: 'roe',        label: 'ROE' },
+      { key: 'roa',        label: 'ROA' },
+      { key: 'margen_neto', label: 'Margen neto' },
+      { key: 'rev_growth', label: 'Crecimiento ingresos' },
+    ],
+  },
+  {
+    title: 'SOLIDEZ FINANCIERA',
+    items: [
+      { key: 'deuda_ebitda', label: 'Deuda neta / EBITDA' },
+      { key: 'cap_mercado',  label: 'Capitalización de mercado' },
+    ],
+  },
+];
+
+function FundamentalesPanel({ ticker, stockData, fundamentals, fundLoading }) {
   const variacion = stockData?.changePct;
   const isPos = variacion > 0;
   const isNeg = variacion < 0;
+  const isYahoo = fundamentals?._source === 'yahoo';
+  const raw = fundamentals?._raw ?? {};
+
+  const ts = fundamentals?._timestamp
+    ? new Date(fundamentals._timestamp).toLocaleDateString('es-AR', {
+        day: '2-digit', month: '2-digit', year: 'numeric',
+      })
+    : new Date().toLocaleDateString('es-AR', {
+        day: '2-digit', month: '2-digit', year: 'numeric',
+      });
 
   return (
     <div className="det-panel">
       <div className="det-panel-title">DATOS FUNDAMENTALES</div>
+
+      {/* Precio actual */}
       <table className="fund-table">
         <tbody>
           <tr>
@@ -91,21 +133,40 @@ function FundamentalesPanel({ ticker, stockData }) {
               )}
             </td>
           </tr>
-          {Object.entries(FUND_LABELS).map(([key, label]) => (
-            <tr key={key}>
-              <td className="fund-label">{label}</td>
-              <td className={`fund-val ${fund[key] === 'N/D' ? 'dim' : ''}`}>
-                {fund[key]}
-              </td>
-            </tr>
-          ))}
         </tbody>
       </table>
-      {!FUNDAMENTALS[ticker] && (
-        <div className="fund-nd-note">
-          Datos fundamentales no disponibles para {ticker}. Próximamente.
-        </div>
+
+      {/* Secciones: Valuación / Rentabilidad / Solidez */}
+      {fundLoading ? (
+        <div className="fund-loading">Cargando fundamentales…</div>
+      ) : (
+        FUND_SECTIONS.map(section => (
+          <div key={section.title} className="fund-section">
+            <div className="fund-section-title">{section.title}</div>
+            <table className="fund-table">
+              <tbody>
+                {section.items.map(({ key, label }) => {
+                  const displayVal = fundamentals?.[key] ?? 'N/D';
+                  const colorClass = isYahoo
+                    ? (displayVal === 'N/D' ? 'dim' : fundColorClass(key, raw[key]))
+                    : (displayVal === 'N/D' ? 'dim' : '');
+                  return (
+                    <tr key={key}>
+                      <td className="fund-label">{label}</td>
+                      <td className={`fund-val ${colorClass}`}>{displayVal}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        ))
       )}
+
+      {/* Timestamp */}
+      <div className="fund-timestamp">
+        Datos: {isYahoo ? 'Yahoo Finance' : 'Datos estáticos'} · Actualizado: {ts}
+      </div>
     </div>
   );
 }
@@ -188,7 +249,7 @@ function parseIAText(text) {
   });
 }
 
-function IAPanel({ ticker, stockData, macro }) {
+function IAPanel({ ticker, stockData, macro, fund }) {
   // idle → confirming → loading → done | error
   const [state,   setState]   = useState('idle');
   const [iaText,  setIaText]  = useState('');
@@ -200,10 +261,12 @@ function IAPanel({ ticker, stockData, macro }) {
     setIaText('');
     setIaError('');
 
-    const fund = FUNDAMENTALS[ticker] ?? FUNDAMENTALS_EMPTY;
-    const fundamentalsStr = Object.entries(fund)
-      .map(([k, v]) => `${k.replace(/_/g, ' ')}: ${v}`)
-      .join(', ');
+    const fundamentalsStr = fund
+      ? Object.entries(fund)
+          .filter(([k]) => !k.startsWith('_'))
+          .map(([k, v]) => `${k.replace(/_/g, ' ')}: ${v}`)
+          .join(', ')
+      : 'N/D';
 
     const precio    = stockData?.price != null ? fmt(stockData.price) : 'N/D';
     const variacion = stockData?.changePct != null
@@ -370,10 +433,21 @@ export default function AccionDetalle({ ticker, stockData, onBack }) {
   const [macro, setMacro] = useState({
     dolarBlue: 'N/D', inflacion: 'N/D', riesgoPais: 'N/D',
   });
+  const [fundamentals, setFundamentals] = useState(null);
+  const [fundLoading,  setFundLoading]  = useState(true);
 
   useEffect(() => {
     fetchMacroParaIA().then(setMacro);
   }, []);
+
+  useEffect(() => {
+    setFundLoading(true);
+    setFundamentals(null);
+    fetchFundamentals(ticker).then(data => {
+      setFundamentals(data);
+      setFundLoading(false);
+    });
+  }, [ticker]);
 
   const variacion = stockData?.changePct;
   const isPos = variacion > 0;
@@ -414,9 +488,14 @@ export default function AccionDetalle({ ticker, stockData, onBack }) {
 
         {/* Derecha: 3 paneles apilados */}
         <div className="accion-col-panels">
-          <FundamentalesPanel ticker={ticker} stockData={stockData} />
+          <FundamentalesPanel
+            ticker={ticker}
+            stockData={stockData}
+            fundamentals={fundamentals}
+            fundLoading={fundLoading}
+          />
           <NoticiasPanel ticker={ticker} />
-          <IAPanel ticker={ticker} stockData={stockData} macro={macro} />
+          <IAPanel ticker={ticker} stockData={stockData} macro={macro} fund={fundamentals} />
         </div>
 
       </div>

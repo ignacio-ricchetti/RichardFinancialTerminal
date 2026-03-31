@@ -37,7 +37,32 @@ export const COMPANY_NAMES = {
   RICHH: 'Roch S.A.',
 };
 
-// ── Datos fundamentales estáticos (actualizables) ─────────────
+// ── Mapa de tickers BYMA → Yahoo Finance (.BA) ────────────────
+
+const YAHOO_TICKERS = {
+  YPF:   'YPFD.BA',
+  GGAL:  'GGAL.BA',
+  BMA:   'BMA.BA',
+  PAMP:  'PAMPA.BA',
+  TXAR:  'TXAR.BA',
+  ALUA:  'ALUA.BA',
+  CRES:  'CRES.BA',
+  SUPV:  'SUPV.BA',
+  TECO2: 'TECO2.BA',
+  LOMA:  'LOMA.BA',
+  MIRG:  'MIRG.BA',
+  BYMA:  'BYMA.BA',
+  CVH:   'CVH.BA',
+  VALO:  'VALO.BA',
+  CEPU:  'CEPU.BA',
+  TGSU2: 'TGSU2.BA',
+  DGCU2: 'DGCU2.BA',
+  MOLI:  'MOLI.BA',
+  AGRO:  'AGRO.BA',
+  RICHH: 'RICH.BA',
+};
+
+// ── Datos fundamentales estáticos (fallback cuando Yahoo falla) ─
 
 const ND = 'N/D';
 
@@ -51,6 +76,8 @@ export const FUNDAMENTALS = {
     roa:          '7.8%',
     margen_neto:  '8.3%',
     deuda_ebitda: '1.6x',
+    rev_growth:   ND,
+    earn_growth:  ND,
   },
   GGAL: {
     cap_mercado:  'USD 3.8B',
@@ -61,6 +88,8 @@ export const FUNDAMENTALS = {
     roa:          '4.2%',
     margen_neto:  '28.6%',
     deuda_ebitda: ND,
+    rev_growth:   ND,
+    earn_growth:  ND,
   },
   BMA: {
     cap_mercado:  'USD 2.1B',
@@ -71,6 +100,8 @@ export const FUNDAMENTALS = {
     roa:          '3.8%',
     margen_neto:  '24.1%',
     deuda_ebitda: ND,
+    rev_growth:   ND,
+    earn_growth:  ND,
   },
   PAMP: {
     cap_mercado:  'USD 1.4B',
@@ -81,6 +112,8 @@ export const FUNDAMENTALS = {
     roa:          '9.1%',
     margen_neto:  '15.2%',
     deuda_ebitda: '1.2x',
+    rev_growth:   ND,
+    earn_growth:  ND,
   },
   TXAR: {
     cap_mercado:  'USD 0.9B',
@@ -91,6 +124,8 @@ export const FUNDAMENTALS = {
     roa:          '5.4%',
     margen_neto:  '7.8%',
     deuda_ebitda: '2.1x',
+    rev_growth:   ND,
+    earn_growth:  ND,
   },
 };
 
@@ -103,6 +138,8 @@ export const FUNDAMENTALS_EMPTY = {
   roa:          ND,
   margen_neto:  ND,
   deuda_ebitda: ND,
+  rev_growth:   ND,
+  earn_growth:  ND,
 };
 
 // ── Helpers de parseo BYMA (espeja api.js, sin tocar ese archivo) ─
@@ -156,6 +193,91 @@ export async function fetchLeadingEquities() {
     return map;
   } catch {
     return {};
+  }
+}
+
+// ── fetch fundamentals desde Yahoo Finance ────────────────────
+
+const YAHOO_PROXY = '/api/yahoo';
+const YAHOO_MODULES = 'defaultKeyStatistics,financialData,summaryDetail';
+
+function yahooRaw(field) {
+  return field?.raw ?? null;
+}
+
+function fmtPct(v)  { return v != null ? `${(v * 100).toFixed(1)}%` : ND; }
+function fmtX(v)    { return v != null ? `${Number(v).toFixed(1)}x` : ND; }
+function fmtCap(v)  {
+  if (v == null) return ND;
+  return `USD ${(v / 1e9).toFixed(1)}B`;
+}
+
+export async function fetchFundamentals(ticker) {
+  const yahooTicker = YAHOO_TICKERS[ticker];
+  if (!yahooTicker) return FUNDAMENTALS[ticker] ?? FUNDAMENTALS_EMPTY;
+
+  try {
+    const url = `${YAHOO_PROXY}/v10/finance/quoteSummary/${yahooTicker}?modules=${YAHOO_MODULES}`;
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 10_000);
+    const res = await fetch(url, {
+      signal: controller.signal,
+      headers: { Accept: 'application/json' },
+    });
+    clearTimeout(timer);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+    const data = await res.json();
+    const result = data?.quoteSummary?.result?.[0];
+    if (!result) throw new Error('Sin datos');
+
+    const ks = result.defaultKeyStatistics ?? {};
+    const fd = result.financialData        ?? {};
+    const sd = result.summaryDetail        ?? {};
+
+    const totalDebt = yahooRaw(fd.totalDebt);
+    const ebitda    = yahooRaw(fd.ebitda);
+    const rawDeuda  = (totalDebt != null && ebitda != null && ebitda !== 0)
+      ? totalDebt / ebitda
+      : null;
+
+    const rawPE    = yahooRaw(sd.trailingPE) ?? yahooRaw(ks.trailingPE);
+    const rawEVEB  = yahooRaw(ks.enterpriseToEbitda);
+    const rawPB    = yahooRaw(ks.priceToBook);
+    const rawROE   = yahooRaw(fd.returnOnEquity);
+    const rawROA   = yahooRaw(fd.returnOnAssets);
+    const rawMN    = yahooRaw(fd.profitMargins);
+    const rawRG    = yahooRaw(fd.revenueGrowth);
+    const rawEG    = yahooRaw(fd.earningsGrowth);
+    const rawCap   = yahooRaw(sd.marketCap);
+
+    return {
+      cap_mercado:  fmtCap(rawCap),
+      pe_ratio:     fmtX(rawPE),
+      ev_ebitda:    fmtX(rawEVEB),
+      precio_libro: fmtX(rawPB),
+      roe:          fmtPct(rawROE),
+      roa:          fmtPct(rawROA),
+      margen_neto:  fmtPct(rawMN),
+      deuda_ebitda: fmtX(rawDeuda),
+      rev_growth:   fmtPct(rawRG),
+      earn_growth:  fmtPct(rawEG),
+      _raw: {
+        pe_ratio:     rawPE,
+        ev_ebitda:    rawEVEB,
+        precio_libro: rawPB,
+        roe:          rawROE,
+        roa:          rawROA,
+        margen_neto:  rawMN,
+        deuda_ebitda: rawDeuda,
+        rev_growth:   rawRG,
+      },
+      _timestamp: new Date(),
+      _source:    'yahoo',
+    };
+  } catch {
+    // Fallback a datos estáticos
+    return FUNDAMENTALS[ticker] ?? FUNDAMENTALS_EMPTY;
   }
 }
 
